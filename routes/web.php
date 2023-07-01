@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CartItemController;
 use App\Http\Controllers\ProductController;
@@ -24,3 +25,7 @@ Route::get('/', function () {
 Route::apiResource('/products',ProductController::class);
 Route::apiResource('/carts',CartController::class);
 Route::apiResource('/cart-items',CartItemController::class);
+
+Route::get('auth','AuthController@index');
+
+Route::post('signup', 'AuthController@signup');
