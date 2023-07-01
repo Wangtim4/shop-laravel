@@ -26,6 +26,6 @@ Route::apiResource('/products',ProductController::class);
 Route::apiResource('/carts',CartController::class);
 Route::apiResource('/cart-items',CartItemController::class);
 
-Route::get('auth','AuthController@index');
 
 Route::post('signup', 'AuthController@signup');
+Route::post('login', 'AuthController@login');
