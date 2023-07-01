@@ -6,7 +6,7 @@ use App\Models\CartItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use Ramsey\Uuid\Type\Integer;
+use App\Http\Requests\UpdateCartItem;
 
 class CartItemController extends Controller
 {
@@ -95,9 +95,9 @@ class CartItemController extends Controller
      * @param  \App\Models\CartItem  $cartItem
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(UpdateCartItem $request, $id)
     {
-        $form = $request->all();
+        $form = $request->validated();
         DB::table('cart_items')->where('id',$id)->update(
             [
                 'quantity' => $form['quantity'],
