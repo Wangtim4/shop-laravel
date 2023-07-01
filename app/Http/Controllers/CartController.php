@@ -25,8 +25,13 @@ class CartController extends Controller
         // $cart = collect($cart);
         // $cart['item'] = collect($cartItems);
 
-        // 判斷Cart是否有資料，沒有則新增
-        $cart = Cart::with(['cartItems'])->firstOrCreate();
+        // 通過驗的會員
+        $user = auth()->user();
+
+        // 判斷Cart是否有資料，firstOrCreate沒有則新增，有則回傳會員資料where('user_id',$user->id)
+        $cart = Cart::with(['cartItems'])
+        ->where('user_id' , $user->id)
+        ->firstOrCreate(['user_id' => $user->id]);
         return response($cart);
     }
 
