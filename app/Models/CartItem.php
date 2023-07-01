@@ -4,10 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CartItem extends Model
 {
     use HasFactory;
+
+    // 軟刪除
+    use SoftDeletes;
+
     // 白名單，只有那些可以更新
     // protected $fillable = ['quantity'];
     
