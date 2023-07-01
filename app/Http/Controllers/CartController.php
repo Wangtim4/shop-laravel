@@ -15,15 +15,18 @@ class CartController extends Controller
      */
     public function index()
     {
-        $cart = DB::table('carts')->get()->first();
-        // 如果購物車為空
-        if(empty($cart)) {
-            DB::table('carts')->insert(['created_at'=> now(),'updated_at'=> now()]);
-            $cart = DB::table('carts')->get()->first();
-        }
-        $cartItems = DB::table('cart_items')->where('cart_id', $cart->id)->get();
-        $cart = collect($cart);
-        $cart['item'] = collect($cartItems);
+        // $cart = DB::table('carts')->get()->first();
+        // // 如果購物車為空
+        // if(empty($cart)) {
+        //     DB::table('carts')->insert(['created_at'=> now(),'updated_at'=> now()]);
+        //     $cart = DB::table('carts')->get()->first();
+        // }
+        // $cartItems = DB::table('cart_items')->where('cart_id', $cart->id)->get();
+        // $cart = collect($cart);
+        // $cart['item'] = collect($cartItems);
+
+        // 判斷Cart是否有資料，沒有則新增
+        $cart = Cart::with(['cartItems'])->firstOrCreate();
         return response($cart);
     }
 

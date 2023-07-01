@@ -54,17 +54,13 @@ class CartItemController extends Controller
             return response($validator->errors(), 400);
         };
         $validatedData = $validator->validate();
-        // dump($validatedData);
-        DB::table('cart_items')->insert(
-            [
-                'cart_id' => $validatedData['cart_id'],
-                'product_id' => $validatedData['product_id'],
+        $cart = Cart::find($validatedData['cart_id']);
+        $result = $cart->cartItems()->create([
+            'product_id' => $validatedData['product_id'],
                 'quantity' => $validatedData['quantity'],
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]
-        );
-        return response()->json(true);
+        ]);
+        
+        return response()->json($result);
     }
 
     /**
@@ -99,12 +95,10 @@ class CartItemController extends Controller
     public function update(UpdateCartItem $request, $id)
     {
         $form = $request->validated();
-        DB::table('cart_items')->where('id',$id)->update(
-            [
-                'quantity' => $form['quantity'],
-                'updated_at' => now(),
-            ]
-        );
+        $item = CartItem::find($id);
+        //先填充，未儲存
+        $item -> fill(['quantity' => $form['quantity']]);
+        $item->save();
         return response()->json(true);
     }
 
@@ -116,7 +110,7 @@ class CartItemController extends Controller
      */
     public function destroy($id)
     {
-        DB::table('cart_items')->where('id', $id)->delete();
+        $item = CartItem::find($id)->delete();
         return response()->json(true);
     }
 }
