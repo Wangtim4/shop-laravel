@@ -3,6 +3,10 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+
+// 驗證錯誤需使用
+use Illuminate\Auth\AuthenticationException;
+
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -37,5 +41,11 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+    }
+
+    // 沒有token的時候回傳
+    protected function unauthenticated($request, AuthenticationException $exception)
+    {
+        return response('授權失敗', 401);
     }
 }

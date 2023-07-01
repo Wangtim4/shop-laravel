@@ -46,6 +46,22 @@ class AuthController extends Controller
         // 需使用composer require lcobucci/jwt取得accessToken，解密網https://jwt.io/
         // dump($tokenResult);
 
-
     }
+
+    public function logout(Request $request) 
+    {
+        $request->user()->token()->revoke();
+        return response(
+            ['message' =>'登出']
+        );
+    }
+    
+    // 取得會員資料
+    public function user(Request $request)
+    {
+        return response(
+            $request->user()
+        );
+    }
+
 }
