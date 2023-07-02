@@ -24,9 +24,9 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
-        //
+       
     }
 
     /**
@@ -37,6 +37,16 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        $form = $request->all();
+        DB::table('products')->insert([
+            'title' => $form['title'],
+            'content' => $form['content'],
+            'price' => $form['price'],
+            'quantity' => $form['quantity'],
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        return response()->json(true);
     }
 
     /**

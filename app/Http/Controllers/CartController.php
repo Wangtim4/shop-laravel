@@ -35,6 +35,23 @@ class CartController extends Controller
         return response($cart);
     }
 
+    public function checkout() 
+    {
+        // 1.找使用者
+        $user = auth() -> user();
+        // 2.找到使用者購物車-未結帳的第一筆資料
+        $cart = $user->carts()->where('checkouted', false)->with('cartItems')->first();
+        // 3.如果有購物車有資料，確認是否有結帳
+        if($cart) {
+            $result = $cart->checkout();
+            return response($result);
+        }else{
+            // 3.沒有購物車
+            return response('沒有購物車' ,400);
+        }
+
+    }
+
     /**
      * Show the form for creating a new resource.
      *
