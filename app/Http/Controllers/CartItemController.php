@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Cart;
 use App\Models\CartItem;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -50,16 +51,23 @@ class CartItemController extends Controller
             'quantity' => 'required|integer|between:1,10'
         ], $messages);
         // 驗證失敗
-        if($validator -> fails()) {
+        if ($validator->fails()) {
             return response($validator->errors(), 400);
         };
         $validatedData = $validator->validate();
+
+        // 如果商品庫存不足
+        $product = Product::find($validatedData['product_id']);
+        if(!$product->checkQuantity($validatedData['quantity'])){
+            return response($product->title.'數量不足', 400);
+        }
+
         $cart = Cart::find($validatedData['cart_id']);
         $result = $cart->cartItems()->create([
-            'product_id' => $validatedData['product_id'],
-                'quantity' => $validatedData['quantity'],
+            'product_id' => $product->id,
+            'quantity' => $validatedData['quantity'],
         ]);
-        
+
         return response()->json($result);
     }
 
@@ -97,7 +105,7 @@ class CartItemController extends Controller
         $form = $request->validated();
         $item = CartItem::find($id);
         //先填充，未儲存
-        $item -> fill(['quantity' => $form['quantity']]);
+        $item->fill(['quantity' => $form['quantity']]);
         $item->save();
         return response()->json(true);
     }

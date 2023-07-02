@@ -27,6 +27,13 @@ class Cart extends Model
     }
 
     public function checkout() {
+        foreach($this->cartItems as $cartItem) {
+            $product = $cartItem->product;
+            // 判斷庫存是否不足
+            if(!$product->checkQuantity($cartItem->quantity)){
+                return $product->title.'數量不足';
+            }
+        }
         //  當carts執行checkout時，建立order
         $order = $this->order()->create([
             // order的user_id = 本身model的Cart自己的user_id
@@ -43,6 +50,8 @@ class Cart extends Model
                 // 判斷會員等級，消費折扣 price * $this -> rate
                 'price' => $cartItem->product->price * $this -> rate,
             ]);
+            // 更新產品庫存數量
+            $cartItem->product->update(['quantity' => $cartItem->product->quantity - $cartItem->quantity]);
         }
         $this->update(['checkouted' => true]);
         $order->orderItems;
