@@ -11,6 +11,8 @@ class Cart extends Model
 
     // 所有欄位都可新增資料
     protected $guarded = [''];
+    // 會員等級影響消費折扣
+    private $rate = 1;
     
     public function cartItems() {
         return $this->hasMany(CartItem::class);
@@ -30,10 +32,16 @@ class Cart extends Model
             // order的user_id = 本身model的Cart自己的user_id
             'user_id'=>$this->user_id
         ]);
+        // 判斷會員等級，消費折扣
+        if($this->user->level == 2 ) {
+            $this -> rate = 0.8;
+        }
+
         foreach($this->cartItems as $cartItem) {
             $order->orderItems()->create([
                 'product_id' => $cartItem->product_id,
-                'price' => $cartItem->product->price,
+                // 判斷會員等級，消費折扣 price * $this -> rate
+                'price' => $cartItem->product->price * $this -> rate,
             ]);
         }
         $this->update(['checkouted' => true]);

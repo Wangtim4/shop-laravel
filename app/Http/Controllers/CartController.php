@@ -28,9 +28,12 @@ class CartController extends Controller
         // 通過驗的會員
         $user = auth()->user();
 
-        // 判斷Cart是否有資料，firstOrCreate沒有則新增，有則回傳會員資料where('user_id',$user->id)
+        // 1.判斷Cart是否有資料，firstOrCreate沒有則新增
+        // 2.有則回傳會員資料where('user_id',$user->id)
+        // 3.取出沒有結帳的資料，沒有則不顯示 where('checkouted' , false)
         $cart = Cart::with(['cartItems'])
         ->where('user_id' , $user->id)
+        ->where('checkouted' , false)
         ->firstOrCreate(['user_id' => $user->id]);
         return response($cart);
     }
