@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CartItemController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\WebController;
 use GuzzleHttp\Middleware;
 use Illuminate\Support\Facades\Route;
 
@@ -18,13 +19,15 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', 'WebController@index');
+Route::get('/contact_us', 'WebController@contactUs');
+Route::post('/products/check-product', 'ProductController@checkProduct');
 
 
 
 Route::resource('products', 'ProductController');
+
+Route::resource('admin/orders', 'Admin\OrderController');
 
 
 Route::post('signup', 'AuthController@signup');

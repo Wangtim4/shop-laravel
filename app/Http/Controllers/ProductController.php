@@ -19,6 +19,17 @@ class ProductController extends Controller
         return response($data);
     }
 
+    public function checkProduct(Request $request) 
+    {
+        $id = $request->all()['id'];
+        $product = Product::find($id);
+        if ($product->quantity > 0) {
+            return response(true);
+        } else {
+            return response(false);
+        }
+    }
+
     /**
      * Show the form for creating a new resource.
      *
