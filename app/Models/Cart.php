@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Cart extends Model
 {
@@ -13,48 +15,67 @@ class Cart extends Model
     protected $guarded = [''];
     // 會員等級影響消費折扣
     private $rate = 1;
-    
-    public function cartItems() {
+
+    public function cartItems()
+    {
         return $this->hasMany(CartItem::class);
     }
 
-    public function user() {
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
-    public function order() {
+    public function order()
+    {
         // 一個cart只有一個order
         return $this->hasOne(Order::class);
     }
 
-    public function checkout() {
-        foreach($this->cartItems as $cartItem) {
-            $product = $cartItem->product;
-            // 判斷庫存是否不足
-            if(!$product->checkQuantity($cartItem->quantity)){
-                return $product->title.'數量不足';
-            }
-        }
-        //  當carts執行checkout時，建立order
-        $order = $this->order()->create([
-            // order的user_id = 本身model的Cart自己的user_id
-            'user_id'=>$this->user_id
-        ]);
-        // 判斷會員等級，消費折扣
-        if($this->user->level == 2 ) {
-            $this -> rate = 0.8;
-        }
+    public function checkout()
+    {
+        DB::beginTransaction();
+        try {
+            //除錯code...
 
-        foreach($this->cartItems as $cartItem) {
-            $order->orderItems()->create([
-                'product_id' => $cartItem->product_id,
-                // 判斷會員等級，消費折扣 price * $this -> rate
-                'price' => $cartItem->product->price * $this -> rate,
+            foreach ($this->cartItems as $cartItem) {
+                $product = $cartItem->product;
+                // 判斷庫存是否不足
+                if (!$product->checkQuantity($cartItem->quantity)) {
+                    return $product->title . '數量不足';
+                }
+            }
+            //  當carts執行checkout時，建立order
+            $order = $this->order()->create([
+                // order的user_id = 本身model的Cart自己的user_id
+                'user_id' => $this->user_id
             ]);
-            // 更新產品庫存數量
-            $cartItem->product->update(['quantity' => $cartItem->product->quantity - $cartItem->quantity]);
+            // 判斷會員等級，消費折扣
+            if ($this->user->level == 2) {
+                $this->rate = 0.8;
+            }
+
+            // 引發錯誤
+            // throw new Exception('123');
+
+            foreach ($this->cartItems as $cartItem) {
+                $order->orderItems()->create([
+                    'product_id' => $cartItem->product_id,
+                    // 判斷會員等級，消費折扣 price * $this -> rate
+                    'price' => $cartItem->product->price * $this->rate,
+                ]);
+                // 更新產品庫存數量
+                $cartItem->product->update(['quantity' => $cartItem->product->quantity - $cartItem->quantity]);
+            }
+            $this->update(['checkouted' => true]);
+            $order->orderItems;
+            DB::commit();
+            return $order;
+        } catch (\Throwable $th) {
+            // 錯誤時，執行
+            DB::rollBack();
+            return 'something error';
         }
-        $this->update(['checkouted' => true]);
-        $order->orderItems;
-        return $order;
+            
+        
     }
 }

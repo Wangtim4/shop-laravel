@@ -1,8 +1,4 @@
-{{-- 查看SQL語法 --}}
-@php
-    use Illuminate\Support\Facades\DB;
-@endphp
-{{ DB::enableQueryLog() }}
+
 <h2>後台-訂單列表</h2>
 <span>訂單總數: {{ $orderCount }}</span>
 <table>
@@ -39,6 +35,3 @@
     @endfor
 </div>
 
-{{-- 查看SQL語法 --}}
-
-{{ dd(DB::getQueryLog()) }}
